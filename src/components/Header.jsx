@@ -11,17 +11,6 @@ function Header() {
       <h1 style={{ fontSize: '18px', fontWeight: '600', color: '#534AB7' }}>
         내구독어디가
       </h1>
-      <button style={{
-        background: '#534AB7',
-        color: '#ffffff',
-        border: 'none',
-        borderRadius: '8px',
-        padding: '8px 16px',
-        fontSize: '13px',
-        cursor: 'pointer'
-      }}>
-        + 구독 추가
-      </button>
     </header>
   )
 }
