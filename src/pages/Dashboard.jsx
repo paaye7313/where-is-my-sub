@@ -13,12 +13,31 @@ const initialData = [
 function Dashboard() {
   const [subs, setSubs] = useState(initialData)
   const [showModal, setShowModal] = useState(false)
+  const [editData, setEditData] = useState(null)
 
   const totalMonthly = subs.reduce((sum, sub) => sum + sub.price, 0)
   const totalYearly = totalMonthly * 12
 
   function handleAdd(newSub) {
     setSubs([...subs, newSub])
+  }
+
+  function handleEdit(updated) {
+    setSubs(subs.map(sub => sub.id === updated.id ? updated : sub))
+  }
+
+  function handleDelete(id) {
+    setSubs(subs.filter(sub => sub.id !== id))
+  }
+
+  function openEdit(sub) {
+    setEditData(sub)
+    setShowModal(true)
+  }
+
+  function closeModal() {
+    setEditData(null)
+    setShowModal(false)
   }
 
   return (
@@ -48,18 +67,23 @@ function Dashboard() {
         {subs.map(sub => (
           <SubCard
             key={sub.id}
+            id={sub.id}
             name={sub.name}
             price={sub.price}
             billingDate={sub.billingDate}
             cycle={sub.cycle}
+            onDelete={handleDelete}
+            onEdit={openEdit}
           />
         ))}
       </div>
 
       {showModal && (
         <AddSubModal
-          onClose={() => setShowModal(false)}
+          onClose={closeModal}
           onAdd={handleAdd}
+          onEdit={handleEdit}
+          editData={editData}
         />
       )}
     </div>

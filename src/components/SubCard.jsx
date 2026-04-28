@@ -1,4 +1,4 @@
-function SubCard({ name, price, billingDate, cycle }) {
+function SubCard({ id, name, price, billingDate, cycle, onDelete, onEdit }) {
   return (
     <div style={{
       background: '#ffffff',
@@ -33,13 +33,36 @@ function SubCard({ name, price, billingDate, cycle }) {
           </div>
         </div>
       </div>
-      <div style={{ textAlign: 'right' }}>
-        <div style={{ fontSize: '14px', fontWeight: '600', color: '#1a1a1a' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div style={{ fontSize: '14px', fontWeight: '600', color: '#1a1a1a', marginRight: '8px' }}>
           ₩{price.toLocaleString()}
         </div>
+        <button onClick={() => onEdit({ id, name, price, billingDate, cycle })} style={btnStyle('#f0eeff', '#534AB7')}>
+          수정
+        </button>
+        <button onClick={() => {
+          if (window.confirm(`'${name}' 구독을 삭제할까요?`)) {
+            onDelete(id)
+          }
+        }} style={btnStyle('#fff0f0', '#d94f4f')}>
+          삭제
+        </button>
       </div>
     </div>
   )
+}
+
+function btnStyle(bg, color) {
+  return {
+    background: bg,
+    color: color,
+    border: 'none',
+    borderRadius: '6px',
+    padding: '6px 12px',
+    fontSize: '12px',
+    cursor: 'pointer',
+    fontWeight: '500',
+  }
 }
 
 export default SubCard

@@ -1,15 +1,19 @@
-function AddSubModal({ onClose, onAdd }) {
+function AddSubModal({ onClose, onAdd, onEdit, editData }) {
   function handleSubmit(e) {
     e.preventDefault()
     const form = e.target
-    const newSub = {
-      id: Date.now(),
+    const subData = {
+      id: editData ? editData.id : Date.now(),
       name: form.name.value,
       price: Number(form.price.value),
       billingDate: Number(form.billingDate.value),
       cycle: form.cycle.value,
     }
-    onAdd(newSub)
+    if (editData) {
+      onEdit(subData)
+    } else {
+      onAdd(subData)
+    }
     onClose()
   }
 
@@ -36,7 +40,9 @@ function AddSubModal({ onClose, onAdd }) {
           alignItems: 'center',
           marginBottom: '24px',
         }}>
-          <h2 style={{ fontSize: '16px', fontWeight: '600' }}>구독 추가</h2>
+          <h2 style={{ fontSize: '16px', fontWeight: '600' }}>
+            {editData ? '구독 수정' : '구독 추가'}
+          </h2>
           <button onClick={onClose} style={{
             background: 'none',
             border: 'none',
@@ -49,19 +55,19 @@ function AddSubModal({ onClose, onAdd }) {
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
           <div>
             <label style={labelStyle}>서비스 이름</label>
-            <input name="name" required placeholder="예: Netflix" style={inputStyle} />
+            <input name="name" required placeholder="예: Netflix" defaultValue={editData?.name} style={inputStyle} />
           </div>
           <div>
             <label style={labelStyle}>월 금액 (원)</label>
-            <input name="price" type="number" required placeholder="예: 17000" style={inputStyle} />
+            <input name="price" type="number" required placeholder="예: 17000" defaultValue={editData?.price} style={inputStyle} />
           </div>
           <div>
             <label style={labelStyle}>결제일</label>
-            <input name="billingDate" type="number" min="1" max="31" required placeholder="예: 17" style={inputStyle} />
+            <input name="billingDate" type="number" min="1" max="31" required placeholder="예: 17" defaultValue={editData?.billingDate} style={inputStyle} />
           </div>
           <div>
             <label style={labelStyle}>결제 주기</label>
-            <select name="cycle" style={inputStyle}>
+            <select name="cycle" defaultValue={editData?.cycle} style={inputStyle}>
               <option value="월간">월간</option>
               <option value="연간">연간</option>
             </select>
@@ -77,7 +83,7 @@ function AddSubModal({ onClose, onAdd }) {
             fontWeight: '500',
             cursor: 'pointer',
           }}>
-            추가하기
+            {editData ? '수정하기' : '추가하기'}
           </button>
         </form>
       </div>
