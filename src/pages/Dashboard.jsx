@@ -1,4 +1,16 @@
 import { useState } from 'react'
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core'
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+  arrayMove,
+} from '@dnd-kit/sortable'
 import SummaryBox from '../components/SummaryBox'
 import SubCard from '../components/SubCard'
 import AddSubModal from '../components/AddSubModal'
@@ -14,6 +26,13 @@ function Dashboard() {
   const [subs, setSubs] = useState(initialData)
   const [showModal, setShowModal] = useState(false)
   const [editData, setEditData] = useState(null)
+  const [search, setSearch] = useState('')
+
+  const sensors = useSensors(useSensor(PointerSensor))
+
+  const filtered = subs.filter(sub =>
+    sub.name.toLowerCase().includes(search.toLowerCase())
+  )
 
   const totalMonthly = subs.reduce((sum, sub) => sum + sub.price, 0)
   const totalYearly = totalMonthly * 12
@@ -40,9 +59,37 @@ function Dashboard() {
     setShowModal(false)
   }
 
+  function handleDragEnd(event) {
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+
+    const oldIndex = subs.findIndex(sub => sub.id === active.id)
+    const newIndex = subs.findIndex(sub => sub.id === over.id)
+    setSubs(arrayMove(subs, oldIndex, newIndex))
+  }
+
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '16px 24px 0' }}>
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: '16px 24px 0'
+      }}>
+        <input
+          type="text"
+          placeholder="구독 검색..."
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          style={{
+            padding: '8px 14px',
+            border: '1px solid #e5e5e5',
+            borderRadius: '8px',
+            fontSize: '13px',
+            width: '220px',
+            outline: 'none',
+          }}
+        />
         <button
           onClick={() => setShowModal(true)}
           style={{
@@ -63,20 +110,30 @@ function Dashboard() {
         totalYearly={totalYearly}
         count={subs.length}
       />
-      <div style={{ padding: '0 24px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-        {subs.map(sub => (
-          <SubCard
-            key={sub.id}
-            id={sub.id}
-            name={sub.name}
-            price={sub.price}
-            billingDate={sub.billingDate}
-            cycle={sub.cycle}
-            onDelete={handleDelete}
-            onEdit={openEdit}
-          />
-        ))}
-      </div>
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+        <SortableContext items={filtered.map(s => s.id)} strategy={verticalListSortingStrategy}>
+          <div style={{ padding: '0 24px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            {filtered.length > 0 ? (
+              filtered.map(sub => (
+                <SubCard
+                  key={sub.id}
+                  id={sub.id}
+                  name={sub.name}
+                  price={sub.price}
+                  billingDate={sub.billingDate}
+                  cycle={sub.cycle}
+                  onDelete={handleDelete}
+                  onEdit={openEdit}
+                />
+              ))
+            ) : (
+              <div style={{ textAlign: 'center', color: '#888888', fontSize: '14px', padding: '40px 0' }}>
+                검색 결과가 없어요 🔍
+              </div>
+            )}
+          </div>
+        </SortableContext>
+      </DndContext>
 
       {showModal && (
         <AddSubModal
