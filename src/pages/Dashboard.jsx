@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   DndContext,
   closestCenter,
@@ -14,21 +14,34 @@ import {
 import SummaryBox from '../components/SummaryBox'
 import SubCard from '../components/SubCard'
 import AddSubModal from '../components/AddSubModal'
-
-const initialData = [
-  { id: 1, name: 'Netflix', price: 17000, billingDate: 17, cycle: '월간' },
-  { id: 2, name: 'Spotify', price: 10900, billingDate: 23, cycle: '월간' },
-  { id: 3, name: '유튜브 프리미엄', price: 14900, billingDate: 5, cycle: '월간' },
-  { id: 4, name: 'ChatGPT Plus', price: 27000, billingDate: 25, cycle: '월간' },
-]
+import {
+  getSubscriptions,
+  addSubscription,
+  updateSubscription,
+  deleteSubscription,
+  reorderSubscriptions,
+} from '../api'
 
 function Dashboard() {
-  const [subs, setSubs] = useState(initialData)
+  const [subs, setSubs] = useState([])
   const [showModal, setShowModal] = useState(false)
   const [editData, setEditData] = useState(null)
   const [search, setSearch] = useState('')
 
   const sensors = useSensors(useSensor(PointerSensor))
+
+  useEffect(() => {
+    fetchSubs()
+  }, [])
+
+  async function fetchSubs() {
+    try {
+      const res = await getSubscriptions()
+      setSubs(res.data)
+    } catch (err) {
+      console.error('구독 목록 불러오기 실패', err)
+    }
+  }
 
   const filtered = subs.filter(sub =>
     sub.name.toLowerCase().includes(search.toLowerCase())
@@ -37,16 +50,41 @@ function Dashboard() {
   const totalMonthly = subs.reduce((sum, sub) => sum + sub.price, 0)
   const totalYearly = totalMonthly * 12
 
-  function handleAdd(newSub) {
-    setSubs([...subs, newSub])
+  async function handleAdd(newSub) {
+    try {
+      await addSubscription({
+        name: newSub.name,
+        price: newSub.price,
+        billingDate: newSub.billingDate,
+        cycle: newSub.cycle,
+      })
+      fetchSubs()
+    } catch (err) {
+      console.error('구독 추가 실패', err)
+    }
   }
 
-  function handleEdit(updated) {
-    setSubs(subs.map(sub => sub.id === updated.id ? updated : sub))
+  async function handleEdit(updated) {
+    try {
+      await updateSubscription(updated.id, {
+        name: updated.name,
+        price: updated.price,
+        billingDate: updated.billingDate,
+        cycle: updated.cycle,
+      })
+      fetchSubs()
+    } catch (err) {
+      console.error('구독 수정 실패', err)
+    }
   }
 
-  function handleDelete(id) {
-    setSubs(subs.filter(sub => sub.id !== id))
+  async function handleDelete(id) {
+    try {
+      await deleteSubscription(id)
+      fetchSubs()
+    } catch (err) {
+      console.error('구독 삭제 실패', err)
+    }
   }
 
   function openEdit(sub) {
@@ -59,13 +97,20 @@ function Dashboard() {
     setShowModal(false)
   }
 
-  function handleDragEnd(event) {
+  async function handleDragEnd(event) {
     const { active, over } = event
     if (!over || active.id === over.id) return
 
     const oldIndex = subs.findIndex(sub => sub.id === active.id)
     const newIndex = subs.findIndex(sub => sub.id === over.id)
-    setSubs(arrayMove(subs, oldIndex, newIndex))
+    const reordered = arrayMove(subs, oldIndex, newIndex)
+    setSubs(reordered)
+
+    try {
+      await reorderSubscriptions(reordered.map(sub => sub.id))
+    } catch (err) {
+      console.error('순서 변경 실패', err)
+    }
   }
 
   return (
@@ -120,7 +165,7 @@ function Dashboard() {
                   id={sub.id}
                   name={sub.name}
                   price={sub.price}
-                  billingDate={sub.billingDate}
+                  billingDate={sub.billing_date}
                   cycle={sub.cycle}
                   onDelete={handleDelete}
                   onEdit={openEdit}
@@ -128,7 +173,7 @@ function Dashboard() {
               ))
             ) : (
               <div style={{ textAlign: 'center', color: '#888888', fontSize: '14px', padding: '40px 0' }}>
-                검색 결과가 없어요 🔍
+                {search ? '검색 결과가 없어요 🔍' : '구독을 추가해봐요 😊'}
               </div>
             )}
           </div>
