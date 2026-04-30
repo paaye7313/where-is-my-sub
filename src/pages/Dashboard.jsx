@@ -22,7 +22,7 @@ import {
   reorderSubscriptions,
 } from '../api'
 
-function Dashboard() {
+function Dashboard({ onSubsChange }) {
   const [subs, setSubs] = useState([])
   const [showModal, setShowModal] = useState(false)
   const [editData, setEditData] = useState(null)
@@ -38,6 +38,7 @@ function Dashboard() {
     try {
       const res = await getSubscriptions()
       setSubs(res.data)
+      onSubsChange(res.data)
     } catch (err) {
       console.error('구독 목록 불러오기 실패', err)
     }
