@@ -3,14 +3,34 @@
 ## 프로젝트 소개
 구독형 서비스를 한 곳에서 쉽게 관리할 수 있는 웹 애플리케이션이에요.
 
+## 배포 URL
+🔗 https://where-is-my-sub.vercel.app/
+
 ## 목표
 사용자가 이용 중인 구독형 서비스를 효율적으로 관리하고,
 불필요한 지출을 파악할 수 있도록 도와줘요.
 
 ## 기능
 1. **구독 관리** — 구독 서비스 등록, 수정, 삭제, 검색
-2. **지출 현황** — 현재까지 구독에 소비한 금액 확인
+2. **드래그 앤 드롭** — 구독 목록 순서 변경
+3. **지출 분석** — 구독별 지출 비중 차트 및 월/연간 환산 비교
+4. **회원가입 / 로그인** — 계정별 구독 데이터 관리
 
 ## 기술 스택
-- Frontend: React (Vite)
-- Backend: Node.js, Express
+### Frontend
+- React (Vite)
+- Recharts
+- @dnd-kit
+
+### Backend
+- Node.js
+- Express
+- JWT 인증
+- bcrypt
+
+### Database
+- PostgreSQL
+
+### 배포
+- Frontend: Vercel
+- Backend + DB: Render
