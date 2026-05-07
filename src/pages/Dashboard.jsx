@@ -3,6 +3,7 @@ import {
   DndContext,
   closestCenter,
   PointerSensor,
+  TouchSensor,
   useSensor,
   useSensors,
 } from '@dnd-kit/core'
@@ -28,8 +29,15 @@ function Dashboard({ onSubsChange }) {
   const [editData, setEditData] = useState(null)
   const [search, setSearch] = useState('')
 
-  const sensors = useSensors(useSensor(PointerSensor))
-
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 250,
+        tolerance: 5,
+      },
+    })
+  )
   useEffect(() => {
     fetchSubs()
   }, [])
