@@ -3,8 +3,8 @@ function SummaryBox({ totalMonthly, totalYearly, count }) {
     <div style={{
       display: 'grid',
       gridTemplateColumns: 'repeat(3, 1fr)',
-      gap: '12px',
-      padding: '24px',
+      gap: '10px',
+      padding: '16px',
     }}>
       <div style={boxStyle}>
         <div style={labelStyle}>이번 달 지출</div>
@@ -25,20 +25,23 @@ function SummaryBox({ totalMonthly, totalYearly, count }) {
 const boxStyle = {
   background: '#ffffff',
   borderRadius: '12px',
-  padding: '16px',
+  padding: '12px 8px',
   border: '1px solid #e5e5e5',
+  textAlign: 'center',
 }
 
 const labelStyle = {
-  fontSize: '12px',
+  fontSize: '11px',
   color: '#888888',
-  marginBottom: '8px',
+  marginBottom: '6px',
+  wordBreak: 'keep-all',
 }
 
 const valueStyle = {
-  fontSize: '22px',
+  fontSize: '14px',
   fontWeight: '600',
   color: '#1a1a1a',
+  wordBreak: 'break-all',
 }
 
 export default SummaryBox
