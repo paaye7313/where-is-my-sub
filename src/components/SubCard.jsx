@@ -30,6 +30,7 @@ function SubCard({ id, name, price, billingDate, cycle, onDelete, onEdit }) {
               fontSize: '18px',
               padding: '0 4px',
               userSelect: 'none',
+              touchAction: 'none',
             }}
           >
             ⠿
