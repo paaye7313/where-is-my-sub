@@ -16,12 +16,12 @@ const statsGridStyle = `
       grid-column: 1 / -1;
     }
   }
-    @media (max-width: 480px) {
+  @media (max-width: 480px) {
     .stats-grid {
       grid-template-columns: repeat(2, 1fr);
     }
     .stats-grid .most-expensive {
-      grid-column: 1 / -1;
+      grid-column: auto;
     }
   }
 `
