@@ -52,9 +52,9 @@ function AnalyticsPage({ subs }) {
 
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(4, 1fr)',
+        gridTemplateColumns: 'repeat(3, 1fr)',
         gap: '10px',
-        marginBottom: '20px',
+        marginBottom: '12px',
       }}>
         <div style={statStyle}>
           <div style={labelStyle}>이번 달 지출</div>
@@ -68,6 +68,8 @@ function AnalyticsPage({ subs }) {
           <div style={labelStyle}>구독 수</div>
           <div style={valStyle}>{filtered.length}개</div>
         </div>
+      </div>
+      <div style={{ marginBottom: '20px' }}>
         <div style={statStyle}>
           <div style={labelStyle}>가장 비싼 구독</div>
           <div style={{ ...valStyle, fontSize: '15px' }}>
