@@ -37,6 +37,22 @@ router.post('/', authMiddleware, async (req, res) => {
   }
 })
 
+// 순서 변경 (/:id 보다 위에 있어야 해요!)
+router.put('/reorder', authMiddleware, async (req, res) => {
+  const { orderedIds } = req.body
+  try {
+    for (let i = 0; i < orderedIds.length; i++) {
+      await pool.query(
+        'UPDATE subscriptions SET order_index=$1 WHERE id=$2 AND user_id=$3',
+        [i, orderedIds[i], req.user.id]
+      )
+    }
+    res.json({ message: '순서 변경 완료' })
+  } catch (err) {
+    res.status(500).json({ message: '서버 오류', error: err.message })
+  }
+})
+
 // 구독 수정
 router.put('/:id', authMiddleware, async (req, res) => {
   const { name, price, billingDate, cycle } = req.body
@@ -62,22 +78,6 @@ router.delete('/:id', authMiddleware, async (req, res) => {
       [req.params.id, req.user.id]
     )
     res.json({ message: '삭제 완료' })
-  } catch (err) {
-    res.status(500).json({ message: '서버 오류', error: err.message })
-  }
-})
-
-// 순서 변경
-router.put('/reorder', authMiddleware, async (req, res) => {
-  const { orderedIds } = req.body
-  try {
-    for (let i = 0; i < orderedIds.length; i++) {
-      await pool.query(
-        'UPDATE subscriptions SET order_index=$1 WHERE id=$2 AND user_id=$3',
-        [i, orderedIds[i], req.user.id]
-      )
-    }
-    res.json({ message: '순서 변경 완료' })
   } catch (err) {
     res.status(500).json({ message: '서버 오류', error: err.message })
   }
