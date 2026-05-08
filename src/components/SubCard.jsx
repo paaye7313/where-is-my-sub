@@ -1,7 +1,7 @@
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 
-function SubCard({ id, name, price, billingDate, cycle, onDelete, onEdit }) {
+function SubCard({ id, name, price, billingDate, cycle, onDelete, onEdit, isReordering }) {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id })
 
   const style = {
@@ -21,20 +21,22 @@ function SubCard({ id, name, price, billingDate, cycle, onDelete, onEdit }) {
         justifyContent: 'space-between',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div
-            {...attributes}
-            {...listeners}
-            style={{
-              cursor: 'grab',
-              color: '#cccccc',
-              fontSize: '18px',
-              padding: '0 4px',
-              userSelect: 'none',
-              touchAction: 'none',
-            }}
-          >
-            ⠿
-          </div>
+          {isReordering && (
+            <div
+              {...attributes}
+              {...listeners}
+              style={{
+                cursor: 'grab',
+                color: '#cccccc',
+                fontSize: '18px',
+                padding: '0 4px',
+                userSelect: 'none',
+                touchAction: 'none',
+              }}
+            >
+              ⠿
+            </div>
+          )}
           <div style={{
             width: '40px',
             height: '40px',
@@ -62,16 +64,20 @@ function SubCard({ id, name, price, billingDate, cycle, onDelete, onEdit }) {
           <div style={{ fontSize: '14px', fontWeight: '600', color: '#1a1a1a', marginRight: '8px' }}>
             ₩{price.toLocaleString()}
           </div>
-          <button onClick={() => onEdit({ id, name, price, billingDate, cycle })} style={btnStyle('#f0eeff', '#534AB7')}>
-            수정
-          </button>
-          <button onClick={() => {
-            if (window.confirm(`'${name}' 구독을 삭제할까요?`)) {
-              onDelete(id)
-            }
-          }} style={btnStyle('#fff0f0', '#d94f4f')}>
-            삭제
-          </button>
+          {!isReordering && (
+            <>
+              <button onClick={() => onEdit({ id, name, price, billingDate, cycle })} style={btnStyle('#f0eeff', '#534AB7')}>
+                수정
+              </button>
+              <button onClick={() => {
+                if (window.confirm(`'${name}' 구독을 삭제할까요?`)) {
+                  onDelete(id)
+                }
+              }} style={btnStyle('#fff0f0', '#d94f4f')}>
+                삭제
+              </button>
+            </>
+          )}
         </div>
       </div>
     </div>

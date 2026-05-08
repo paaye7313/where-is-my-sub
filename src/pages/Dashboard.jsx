@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import {
   DndContext,
   closestCenter,
@@ -23,11 +23,17 @@ import {
   reorderSubscriptions,
 } from '../api'
 
+const initialData = []
+
 function Dashboard({ onSubsChange }) {
-  const [subs, setSubs] = useState([])
+  const [subs, setSubs] = useState(initialData)
   const [showModal, setShowModal] = useState(false)
   const [editData, setEditData] = useState(null)
   const [search, setSearch] = useState('')
+  const [isReordering, setIsReordering] = useState(false)
+  const [tempSubs, setTempSubs] = useState([])
+  const [sortReorderKey, setSortReorderKey] = useState(null)
+  const [sortReorderDir, setSortReorderDir] = useState('asc')
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -38,7 +44,8 @@ function Dashboard({ onSubsChange }) {
       },
     })
   )
-  useEffect(() => {
+
+  useState(() => {
     fetchSubs()
   }, [])
 
@@ -106,21 +113,57 @@ function Dashboard({ onSubsChange }) {
     setShowModal(false)
   }
 
-  async function handleDragEnd(event) {
-    const { active, over } = event
-    if (!over || active.id === over.id) return
+  function startReordering() {
+    setTempSubs([...subs])
+    setIsReordering(true)
+  }
 
-    const oldIndex = subs.findIndex(sub => sub.id === active.id)
-    const newIndex = subs.findIndex(sub => sub.id === over.id)
-    const reordered = arrayMove(subs, oldIndex, newIndex)
-    setSubs(reordered)
+  function cancelReordering() {
+    setSubs([...tempSubs])
+    setIsReordering(false)
+    setSortReorderKey(null)
+    setSortReorderDir('asc')
+  }
 
+  async function saveReordering() {
     try {
-      await reorderSubscriptions(reordered.map(sub => sub.id))
+      await reorderSubscriptions(subs.map(sub => sub.id))
+      setIsReordering(false)
+      fetchSubs()
     } catch (err) {
-      console.error('순서 변경 실패', err)
+      console.error('순서 저장 실패', err)
     }
   }
+
+  function handleSort(key) {
+    const sorted = [...subs].sort((a, b) => {
+      if (key === 'name') return a.name.localeCompare(b.name)
+      if (key === 'price') return a.price - b.price
+      if (key === 'billingDate') return a.billing_date - b.billing_date
+      return 0
+    })
+
+    // 이미 같은 기준으로 오름차순 정렬된 상태면 내림차순으로
+    const isSameKey = sortReorderKey === key
+    const nextDir = isSameKey && sortReorderDir === 'asc' ? 'desc' : 'asc'
+
+    const finalSorted = nextDir === 'desc' ? sorted.reverse() : sorted
+    setSubs(finalSorted)
+    setSortReorderKey(key)
+    setSortReorderDir(nextDir)
+  }
+
+  function handleDragEnd(event) {
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+    const oldIndex = subs.findIndex(sub => sub.id === active.id)
+    const newIndex = subs.findIndex(sub => sub.id === over.id)
+    setSubs(arrayMove(subs, oldIndex, newIndex))
+    setSortReorderKey(null)
+    setSortReorderDir('asc')
+  }
+
+  const displaySubs = isReordering ? subs : filtered
 
   return (
     <div>
@@ -128,47 +171,80 @@ function Dashboard({ onSubsChange }) {
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        padding: '16px 24px 0'
+        padding: '16px 24px 0',
+        flexWrap: 'wrap',
+        gap: '8px',
       }}>
-        <input
-          type="text"
-          placeholder="구독 검색..."
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          style={{
-            padding: '8px 14px',
-            border: '1px solid #e5e5e5',
-            borderRadius: '8px',
-            fontSize: '13px',
-            width: '220px',
-            outline: 'none',
-          }}
-        />
-        <button
-          onClick={() => setShowModal(true)}
-          style={{
-            background: '#534AB7',
-            color: '#ffffff',
-            border: 'none',
-            borderRadius: '8px',
-            padding: '8px 16px',
-            fontSize: '13px',
-            cursor: 'pointer',
-          }}
-        >
-          + 구독 추가
-        </button>
+        {!isReordering ? (
+          <>
+            <input
+              type="text"
+              placeholder="구독 검색..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              style={{
+                padding: '8px 14px',
+                border: '1px solid #e5e5e5',
+                borderRadius: '8px',
+                fontSize: '13px',
+                width: '220px',
+                outline: 'none',
+              }}
+            />
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button onClick={startReordering} style={outlineBtnStyle}>
+                순서 수정
+              </button>
+              <button onClick={() => setShowModal(true)} style={primaryBtnStyle}>
+                + 구독 추가
+              </button>
+            </div>
+          </>
+        ) : (
+          <>
+            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+              <span style={{ fontSize: '13px', color: '#888888', alignSelf: 'center' }}>정렬:</span>
+              {[
+                { key: 'name', label: '이름순' },
+                { key: 'price', label: '금액순' },
+                { key: 'billingDate', label: '결제일순' },
+              ].map(({ key, label }) => (
+                <button
+                  key={key}
+                  onClick={() => handleSort(key)}
+                  style={{
+                    ...sortBtnStyle,
+                    background: sortReorderKey === key ? '#534AB7' : '#f0eeff',
+                    color: sortReorderKey === key ? '#ffffff' : '#534AB7',
+                  }}
+                >
+                  {label} {sortReorderKey === key ? (sortReorderDir === 'asc' ? '↑' : '↓') : '↕'}
+                </button>
+              ))}
+            </div>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button onClick={cancelReordering} style={outlineBtnStyle}>취소</button>
+              <button onClick={saveReordering} style={primaryBtnStyle}>저장</button>
+            </div>
+          </>
+        )}
       </div>
+
       <SummaryBox
         totalMonthly={totalMonthly}
         totalYearly={totalYearly}
         count={subs.length}
       />
-      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-        <SortableContext items={filtered.map(s => s.id)} strategy={verticalListSortingStrategy}>
+
+      <DndContext
+        sensors={isReordering ? sensors : []}
+        collisionDetection={closestCenter}
+        onDragEnd={handleDragEnd}
+      >
+        <SortableContext items={displaySubs.map(s => s.id)} strategy={verticalListSortingStrategy}>
           <div style={{ padding: '0 24px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            {filtered.length > 0 ? (
-              filtered.map(sub => (
+            {displaySubs.length > 0 ? (
+              displaySubs.map(sub => (
                 <SubCard
                   key={sub.id}
                   id={sub.id}
@@ -178,6 +254,7 @@ function Dashboard({ onSubsChange }) {
                   cycle={sub.cycle}
                   onDelete={handleDelete}
                   onEdit={openEdit}
+                  isReordering={isReordering}
                 />
               ))
             ) : (
@@ -199,6 +276,36 @@ function Dashboard({ onSubsChange }) {
       )}
     </div>
   )
+}
+
+const primaryBtnStyle = {
+  background: '#534AB7',
+  color: '#ffffff',
+  border: 'none',
+  borderRadius: '8px',
+  padding: '8px 16px',
+  fontSize: '13px',
+  cursor: 'pointer',
+}
+
+const outlineBtnStyle = {
+  background: 'none',
+  color: '#534AB7',
+  border: '1px solid #534AB7',
+  borderRadius: '8px',
+  padding: '8px 16px',
+  fontSize: '13px',
+  cursor: 'pointer',
+}
+
+const sortBtnStyle = {
+  background: '#f0eeff',
+  color: '#534AB7',
+  border: 'none',
+  borderRadius: '8px',
+  padding: '6px 12px',
+  fontSize: '12px',
+  cursor: 'pointer',
 }
 
 export default Dashboard
