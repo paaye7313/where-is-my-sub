@@ -33,6 +33,14 @@ function App() {
         ? <Dashboard onSubsChange={setSubs} />
         : <AnalyticsPage subs={subs} />
       }
+      <footer style={{
+        textAlign: 'center',
+        padding: '24px',
+        fontSize: '12px',
+        color: '#cccccc',
+      }}>
+        made by paaye7313 with Claude
+      </footer>
     </div>
   )
 }
