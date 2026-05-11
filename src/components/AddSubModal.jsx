@@ -1,11 +1,50 @@
 import { useState } from 'react'
 
-const EMOJI_OPTIONS = ['📦', '📺', '🎵', '🎮', '📚', '🎬', '💪', '🍔', '✈️', '💻', '🎨', '🛒', '📰', '☁️', '🔧']
-const COLOR_OPTIONS = ['#534AB7', '#1D9E75', '#D85A30', '#D4537E', '#378ADD', '#BA7517', '#639922', '#7B4F9E', '#2B8C8C', '#C0392B']
+const TEMPLATES = [
+  { name: 'Netflix', icon: '📺', color: '#E50914' },
+  { name: '유튜브 프리미엄', icon: '▶️', color: '#E50914' },
+  { name: 'Spotify', icon: '🎵', color: '#1DB954' },
+  { name: 'Apple Music', icon: '🎵', color: '#D4537E' },
+  { name: 'Disney+', icon: '🎬', color: '#113CCF' },
+  { name: 'Watcha', icon: '🎬', color: '#D85A30' },
+  { name: 'wavve', icon: '📺', color: '#378ADD' },
+  { name: 'ChatGPT Plus', icon: '💻', color: '#10A37F' },
+  { name: 'Claude Pro', icon: '💻', color: '#D4A853' },
+  { name: 'Adobe CC', icon: '🎨', color: '#E50914' },
+  { name: 'Microsoft 365', icon: '💻', color: '#D83B01' },
+  { name: '네이버 플러스', icon: '🛒', color: '#03C75A' },
+]
+
+const EMOJI_OPTIONS = ['📦', '📺', '▶️', '🎵', '🎮', '📚', '🎬', '💪', '🍔', '✈️', '💻', '🎨', '🛒', '📰', '☁️', '🔧']
+const COLOR_OPTIONS = [
+  '#534AB7', // 보라
+  '#1D9E75', // 초록
+  '#D85A30', // 주황
+  '#D4537E', // 핑크
+  '#378ADD', // 파랑
+  '#BA7517', // 황금
+  '#639922', // 연두
+  '#E50914', // 빨강
+  '#1DB954', // 스포티파이 초록
+  '#10A37F', // ChatGPT 초록
+  '#D4A853', // 골드
+  '#03C75A', // 네이버 초록
+  '#113CCF', // 다크 블루
+  '#D83B01', // 주황 레드
+  '#1a1a1a', // 블랙
+  '#888888', // 그레이
+]
 
 function AddSubModal({ onClose, onAdd, onEdit, editData }) {
   const [icon, setIcon] = useState(editData?.icon || '📦')
   const [color, setColor] = useState(editData?.color || '#534AB7')
+  const [name, setName] = useState(editData?.name || '')
+
+  function applyTemplate(template) {
+    setName(template.name)
+    setIcon(template.icon)
+    setColor(template.color)
+  }
 
   function handleSubmit(e) {
     e.preventDefault()
@@ -41,7 +80,7 @@ function AddSubModal({ onClose, onAdd, onEdit, editData }) {
         background: '#ffffff',
         borderRadius: '16px',
         padding: '28px',
-        width: '400px',
+        width: '520px',
         boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
         maxHeight: '90vh',
         overflowY: 'auto',
@@ -64,10 +103,47 @@ function AddSubModal({ onClose, onAdd, onEdit, editData }) {
           }}>✕</button>
         </div>
 
+        {!editData && (
+          <div style={{ marginBottom: '20px' }}>
+            <div style={labelStyle}>빠른 선택</div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+              {TEMPLATES.map(t => (
+                <button
+                  key={t.name}
+                  type="button"
+                  onClick={() => applyTemplate(t)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    padding: '5px 10px',
+                    borderRadius: '20px',
+                    border: `1px solid ${name === t.name ? t.color : '#e5e5e5'}`,
+                    background: name === t.name ? `${t.color}18` : '#ffffff',
+                    fontSize: '12px',
+                    cursor: 'pointer',
+                    color: name === t.name ? t.color : '#555555',
+                    fontWeight: name === t.name ? '500' : '400',
+                  }}
+                >
+                  {t.icon} {t.name}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
           <div>
             <label style={labelStyle}>서비스 이름</label>
-            <input name="name" required placeholder="예: Netflix" defaultValue={editData?.name} style={inputStyle} />
+            <input
+              name="name"
+              required
+              placeholder="예: Netflix"
+              value={name}
+              onChange={e => setName(e.target.value)}
+              style={inputStyle}
+            />
           </div>
           <div>
             <label style={labelStyle}>월 금액 (원)</label>
