@@ -8,7 +8,10 @@ function Header({ onLogout, page, onPageChange }) {
       alignItems: 'center',
       justifyContent: 'space-between'
     }}>
-      <h1 style={{ fontSize: '18px', fontWeight: '600', color: '#534AB7' }}>
+      <h1
+        onClick={() => onPageChange('dashboard')}
+        style={{ fontSize: '18px', fontWeight: '600', color: '#534AB7', cursor: 'pointer' }}
+      >
         내구독어디가
       </h1>
       <div style={{ display: 'flex', gap: '4px' }}>

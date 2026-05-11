@@ -1,7 +1,7 @@
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 
-function SubCard({ id, name, price, billingDate, cycle, onDelete, onEdit, isReordering }) {
+function SubCard({ id, name, price, billingDate, cycle, icon, color, onDelete, onEdit, isReordering }) {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id })
 
   const style = {
@@ -41,15 +41,14 @@ function SubCard({ id, name, price, billingDate, cycle, onDelete, onEdit, isReor
             width: '40px',
             height: '40px',
             borderRadius: '10px',
-            background: '#f0eeff',
-            color: '#534AB7',
+            background: color ? `${color}22` : '#f0eeff',
+            border: `1px solid ${color || '#534AB7'}33`,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontWeight: '600',
-            fontSize: '16px',
+            fontSize: '20px',
           }}>
-            {name[0]}
+            {icon || '📦'}
           </div>
           <div>
             <div style={{ fontSize: '14px', fontWeight: '500', color: '#1a1a1a' }}>
@@ -66,7 +65,7 @@ function SubCard({ id, name, price, billingDate, cycle, onDelete, onEdit, isReor
           </div>
           {!isReordering && (
             <>
-              <button onClick={() => onEdit({ id, name, price, billingDate, cycle })} style={btnStyle('#f0eeff', '#534AB7')}>
+              <button onClick={() => onEdit({ id, name, price, billingDate, cycle, icon, color })} style={btnStyle('#f0eeff', '#534AB7')}>
                 수정
               </button>
               <button onClick={() => {
