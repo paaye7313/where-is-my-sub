@@ -29,17 +29,19 @@ function App() {
         page={page}
         onPageChange={setPage}
       />
-      {page === 'dashboard'
-        ? <Dashboard onSubsChange={setSubs} />
-        : <AnalyticsPage subs={subs} />
-      }
+      <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+        {page === 'dashboard'
+          ? <Dashboard onSubsChange={setSubs} />
+          : <AnalyticsPage subs={subs} />
+        }
+      </div>
       <footer style={{
         textAlign: 'center',
         padding: '24px',
         fontSize: '12px',
         color: '#cccccc',
       }}>
-        made by paaye7313 with Claude
+        made by paaye with Claude
       </footer>
     </div>
   )
