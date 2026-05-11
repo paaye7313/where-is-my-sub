@@ -73,6 +73,8 @@ function Dashboard({ onSubsChange }) {
         price: newSub.price,
         billingDate: newSub.billingDate,
         cycle: newSub.cycle,
+        icon: newSub.icon,
+        color: newSub.color,
       })
       fetchSubs()
     } catch (err) {
@@ -87,6 +89,8 @@ function Dashboard({ onSubsChange }) {
         price: updated.price,
         billingDate: updated.billingDate,
         cycle: updated.cycle,
+        icon: updated.icon,
+        color: updated.color,
       })
       fetchSubs()
     } catch (err) {
@@ -252,6 +256,8 @@ function Dashboard({ onSubsChange }) {
                   price={sub.price}
                   billingDate={sub.billing_date}
                   cycle={sub.cycle}
+                  icon={sub.icon}
+                  color={sub.color}
                   onDelete={handleDelete}
                   onEdit={openEdit}
                   isReordering={isReordering}
