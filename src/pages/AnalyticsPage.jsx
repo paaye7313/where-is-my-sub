@@ -66,11 +66,8 @@ function AnalyticsPage({ subs }) {
     ? filtered.reduce((max, sub) => sub.price > max.price ? sub : max, filtered[0])
     : null
 
-  const barData = [...filtered]
-    .sort((a, b) => b.price - a.price)
-    .map(sub => ({ name: sub.name, 월간: sub.price }))
-
-  const colors = ['#534AB7', '#1D9E75', '#D85A30', '#D4537E', '#378ADD', '#BA7517', '#639922']
+  const barData = sortedSubs
+    .map(sub => ({ name: sub.name, 월간: sub.price, color: sub.color || '#534AB7' }))
 
   return (
     <>
@@ -104,7 +101,13 @@ function AnalyticsPage({ subs }) {
         <div style={cardStyle}>
           <div style={cardTitleStyle}>구독별 지출 비중</div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '16px' }}>
-            {subs.map(sub => (
+            {[...subs].sort((a, b) => {
+              const aIndex = sortedSubs.findIndex(s => s.id === a.id)
+              const bIndex = sortedSubs.findIndex(s => s.id === b.id)
+              if (aIndex === -1) return 1
+              if (bIndex === -1) return -1
+              return aIndex - bIndex
+            }).map(sub => (
               <button
                 key={sub.id}
                 onClick={() => toggleSub(sub.id)}
@@ -114,13 +117,13 @@ function AnalyticsPage({ subs }) {
                   border: '1px solid',
                   fontSize: '12px',
                   cursor: 'pointer',
-                  borderColor: excluded.includes(sub.id) ? '#e5e5e5' : '#534AB7',
-                  background: excluded.includes(sub.id) ? 'none' : '#f0eeff',
-                  color: excluded.includes(sub.id) ? '#888888' : '#534AB7',
+                  borderColor: excluded.includes(sub.id) ? '#e5e5e5' : sub.color || '#534AB7',
+                  background: excluded.includes(sub.id) ? 'none' : `${sub.color || '#534AB7'}18`,
+                  color: excluded.includes(sub.id) ? '#888888' : sub.color || '#534AB7',
                   textDecoration: excluded.includes(sub.id) ? 'line-through' : 'none',
                 }}
               >
-                {sub.name}
+                {sub.icon} {sub.name}
               </button>
             ))}
           </div>
@@ -130,8 +133,8 @@ function AnalyticsPage({ subs }) {
               <YAxis tick={{ fontSize: 12 }} tickFormatter={v => `₩${(v / 1000).toFixed(0)}K`} />
               <Tooltip formatter={v => `₩${v.toLocaleString()}`} />
               <Bar dataKey="월간" radius={[6, 6, 0, 0]}>
-                {barData.map((_, i) => (
-                  <Cell key={i} fill={colors[i % colors.length]} />
+                {barData.map((entry, i) => (
+                  <Cell key={i} fill={entry.color} />
                 ))}
               </Bar>
             </BarChart>
