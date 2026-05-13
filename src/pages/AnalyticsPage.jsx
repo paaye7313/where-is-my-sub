@@ -30,6 +30,10 @@ function AnalyticsPage({ subs }) {
   const [excluded, setExcluded] = useState([])
   const [sortKey, setSortKey] = useState(null)
   const [sortDir, setSortDir] = useState('asc')
+  const [chartMode, setChartMode] = useState('월간')
+
+  const getMonthlyPrice = (sub) =>
+    sub.cycle === '연간' ? Math.round(sub.price / 12) : sub.price
 
   function toggleSub(id) {
     setExcluded(prev =>
@@ -49,25 +53,30 @@ function AnalyticsPage({ subs }) {
   const filtered = subs.filter(sub => !excluded.includes(sub.id))
 
   const sortedSubs = [...filtered].sort((a, b) => {
-    if (!sortKey) return b.price - a.price
+    if (!sortKey) return getMonthlyPrice(b) - getMonthlyPrice(a)
     if (sortKey === 'name') {
       return sortDir === 'asc'
         ? a.name.localeCompare(b.name)
         : b.name.localeCompare(a.name)
     }
-    const aVal = sortKey === 'yearly' ? a.price * 12 : a.price
-    const bVal = sortKey === 'yearly' ? b.price * 12 : b.price
+    const aVal = sortKey === 'yearly' ? (a.cycle === '연간' ? a.price : a.price * 12) : getMonthlyPrice(a)
+    const bVal = sortKey === 'yearly' ? (b.cycle === '연간' ? b.price : b.price * 12) : getMonthlyPrice(b)
     return sortDir === 'asc' ? aVal - bVal : bVal - aVal
   })
 
-  const totalMonthly = filtered.reduce((sum, sub) => sum + sub.price, 0)
+  const totalMonthly = filtered.reduce((sum, sub) => sum + getMonthlyPrice(sub), 0)
   const totalYearly = totalMonthly * 12
   const mostExpensive = filtered.length > 0
-    ? filtered.reduce((max, sub) => sub.price > max.price ? sub : max, filtered[0])
+    ? filtered.reduce((max, sub) =>
+      getMonthlyPrice(sub) > getMonthlyPrice(max) ? sub : max, filtered[0])
     : null
 
-  const barData = sortedSubs
-    .map(sub => ({ name: sub.name, 월간: sub.price, color: sub.color || '#534AB7' }))
+  const barData = sortedSubs.map(sub => ({
+    name: sub.name,
+    월간: getMonthlyPrice(sub),
+    연간: sub.cycle === '연간' ? sub.price : sub.price * 12,
+    color: sub.color || '#534AB7'
+  }))
 
   return (
     <>
@@ -93,13 +102,41 @@ function AnalyticsPage({ subs }) {
               {mostExpensive ? mostExpensive.name : '-'}
             </div>
             <div style={{ fontSize: '11px', color: '#888888', marginTop: '2px' }}>
-              {mostExpensive ? `₩${mostExpensive.price.toLocaleString()}/월` : ''}
+              {mostExpensive ? `월환산 ₩${getMonthlyPrice(mostExpensive).toLocaleString()}` : ''}
             </div>
           </div>
         </div>
 
         <div style={cardStyle}>
-          <div style={cardTitleStyle}>구독별 지출 비중</div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
+            <div style={cardTitleStyle}>구독별 지출 비중</div>
+            <div style={{ display: 'flex', gap: '4px' }}>
+              <button
+                onClick={() => setChartMode('월간')}
+                style={{
+                  padding: '4px 10px',
+                  borderRadius: '6px',
+                  border: 'none',
+                  fontSize: '12px',
+                  cursor: 'pointer',
+                  background: chartMode === '월간' ? '#534AB7' : '#f0eeff',
+                  color: chartMode === '월간' ? '#ffffff' : '#534AB7',
+                }}
+              >월간</button>
+              <button
+                onClick={() => setChartMode('연간')}
+                style={{
+                  padding: '4px 10px',
+                  borderRadius: '6px',
+                  border: 'none',
+                  fontSize: '12px',
+                  cursor: 'pointer',
+                  background: chartMode === '연간' ? '#534AB7' : '#f0eeff',
+                  color: chartMode === '연간' ? '#ffffff' : '#534AB7',
+                }}
+              >연간</button>
+            </div>
+          </div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '16px' }}>
             {[...subs].sort((a, b) => {
               const aIndex = sortedSubs.findIndex(s => s.id === a.id)
@@ -131,8 +168,8 @@ function AnalyticsPage({ subs }) {
             <BarChart data={barData} margin={{ top: 4, right: 16, left: 16, bottom: 4 }}>
               <XAxis dataKey="name" tick={{ fontSize: 12 }} />
               <YAxis tick={{ fontSize: 12 }} tickFormatter={v => `₩${(v / 1000).toFixed(0)}K`} />
-              <Tooltip formatter={v => `₩${v.toLocaleString()}`} />
-              <Bar dataKey="월간" radius={[6, 6, 0, 0]}>
+              <Tooltip formatter={v => `₩${v.toLocaleString()} (${chartMode})`} />
+              <Bar dataKey={chartMode} radius={[6, 6, 0, 0]}>
                 {barData.map((entry, i) => (
                   <Cell key={i} fill={entry.color} />
                 ))}
@@ -160,12 +197,15 @@ function AnalyticsPage({ subs }) {
             <tbody>
               {sortedSubs.map(sub => (
                 <tr key={sub.id}>
-                  <td style={tdStyle}>{sub.name}</td>
+                  <td style={tdStyle}>{sub.icon} {sub.name}</td>
                   <td style={{ ...tdStyle, textAlign: 'right', fontWeight: '500' }}>
-                    ₩{sub.price.toLocaleString()}
+                    ₩{getMonthlyPrice(sub).toLocaleString()}
+                    {sub.cycle === '연간' && (
+                      <div style={{ fontSize: '10px', color: '#888888' }}>월환산</div>
+                    )}
                   </td>
                   <td style={{ ...tdStyle, textAlign: 'right', color: '#534AB7', fontWeight: '500' }}>
-                    ₩{(sub.price * 12).toLocaleString()}
+                    ₩{(sub.cycle === '연간' ? sub.price : sub.price * 12).toLocaleString()}
                   </td>
                 </tr>
               ))}
@@ -219,7 +259,7 @@ const cardTitleStyle = {
   fontSize: '12px',
   fontWeight: '500',
   color: '#888888',
-  marginBottom: '14px',
+  marginBottom: '0',
 }
 
 const thStyle = {
