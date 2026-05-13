@@ -1,7 +1,7 @@
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 
-function SubCard({ id, name, price, billingDate, cycle, icon, color, onDelete, onEdit, isReordering }) {
+function SubCard({ id, name, price, billingDate, billingMonth, cycle, icon, color, onDelete, onEdit, isReordering }) {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id })
 
   const style = {
@@ -55,17 +55,30 @@ function SubCard({ id, name, price, billingDate, cycle, icon, color, onDelete, o
               {name}
             </div>
             <div style={{ fontSize: '12px', color: '#888888', marginTop: '2px' }}>
-              매월 {billingDate}일 · {cycle}
+              {cycle === '연간'
+                ? `매년 ${billingMonth}월 ${billingDate}일 · 연간`
+                : `매월 ${billingDate}일 · 월간`
+              }
             </div>
           </div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <div style={{ fontSize: '14px', fontWeight: '600', color: '#1a1a1a', marginRight: '8px' }}>
-            ₩{price.toLocaleString()}
+          <div style={{ textAlign: 'right', marginRight: '8px' }}>
+            <div style={{ fontSize: '12px', color: '#888888', marginTop: '2px' }}>
+              {cycle === '연간'
+                ? `매년 ₩${price.toLocaleString()}원`
+                : `매월 ₩${price.toLocaleString()}원`
+              }
+            </div>
+            {cycle === '연간' && (
+              <div style={{ fontSize: '11px', color: '#888888', marginTop: '2px' }}>
+                월환산 ₩{Math.round(price / 12).toLocaleString()}원
+              </div>
+            )}
           </div>
           {!isReordering && (
             <>
-              <button onClick={() => onEdit({ id, name, price, billingDate, cycle, icon, color })} style={btnStyle('#f0eeff', '#534AB7')}>
+              <button onClick={() => onEdit({ id, name, price, billingDate, billingMonth, cycle, icon, color })} style={btnStyle('#f0eeff', '#534AB7')}>
                 수정
               </button>
               <button onClick={() => {

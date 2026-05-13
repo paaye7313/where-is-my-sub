@@ -17,28 +17,16 @@ const TEMPLATES = [
 
 const EMOJI_OPTIONS = ['📦', '📺', '▶️', '🎵', '🎮', '📚', '🎬', '💪', '🍔', '✈️', '💻', '🎨', '🛒', '📰', '☁️', '🔧']
 const COLOR_OPTIONS = [
-  '#534AB7', // 보라
-  '#1D9E75', // 초록
-  '#D85A30', // 주황
-  '#D4537E', // 핑크
-  '#378ADD', // 파랑
-  '#BA7517', // 황금
-  '#639922', // 연두
-  '#E50914', // 빨강
-  '#1DB954', // 스포티파이 초록
-  '#10A37F', // ChatGPT 초록
-  '#D4A853', // 골드
-  '#03C75A', // 네이버 초록
-  '#113CCF', // 다크 블루
-  '#D83B01', // 주황 레드
-  '#1a1a1a', // 블랙
-  '#888888', // 그레이
+  '#534AB7', '#1D9E75', '#D85A30', '#D4537E', '#378ADD', '#BA7517', '#639922',
+  '#E50914', '#1DB954', '#10A37F', '#D4A853', '#03C75A', '#113CCF', '#D83B01',
+  '#1a1a1a', '#888888',
 ]
 
 function AddSubModal({ onClose, onAdd, onEdit, editData }) {
   const [icon, setIcon] = useState(editData?.icon || '📦')
   const [color, setColor] = useState(editData?.color || '#534AB7')
   const [name, setName] = useState(editData?.name || '')
+  const [cycle, setCycle] = useState(editData?.cycle || '월간')
 
   function applyTemplate(template) {
     setName(template.name)
@@ -54,7 +42,8 @@ function AddSubModal({ onClose, onAdd, onEdit, editData }) {
       name: form.name.value,
       price: Number(form.price.value),
       billingDate: Number(form.billingDate.value),
-      cycle: form.cycle.value,
+      billingMonth: cycle === '연간' ? Number(form.billingMonth.value) : null,
+      cycle,
       icon,
       color,
     }
@@ -145,20 +134,56 @@ function AddSubModal({ onClose, onAdd, onEdit, editData }) {
               style={inputStyle}
             />
           </div>
-          <div>
-            <label style={labelStyle}>월 금액 (원)</label>
-            <input name="price" type="number" required placeholder="예: 17000" defaultValue={editData?.price} style={inputStyle} />
-          </div>
-          <div>
-            <label style={labelStyle}>결제일</label>
-            <input name="billingDate" type="number" min="1" max="31" required placeholder="예: 17" defaultValue={editData?.billingDate} style={inputStyle} />
-          </div>
+
           <div>
             <label style={labelStyle}>결제 주기</label>
-            <select name="cycle" defaultValue={editData?.cycle} style={inputStyle}>
+            <select
+              value={cycle}
+              onChange={e => setCycle(e.target.value)}
+              style={inputStyle}
+            >
               <option value="월간">월간</option>
               <option value="연간">연간</option>
             </select>
+          </div>
+
+          <div>
+            <label style={labelStyle}>
+              {cycle === '연간' ? '연간 금액 (원)' : '월 금액 (원)'}
+            </label>
+            <input
+              name="price"
+              type="number"
+              required
+              placeholder={cycle === '연간' ? '예: 119000' : '예: 17000'}
+              defaultValue={editData?.price}
+              style={inputStyle}
+            />
+          </div>
+
+          {cycle === '연간' && (
+            <div>
+              <label style={labelStyle}>결제 월</label>
+              <select name="billingMonth" defaultValue={editData?.billing_month || 1} style={inputStyle}>
+                {Array.from({ length: 12 }, (_, i) => (
+                  <option key={i + 1} value={i + 1}>{i + 1}월</option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          <div>
+            <label style={labelStyle}>결제일</label>
+            <input
+              name="billingDate"
+              type="number"
+              min="1"
+              max="31"
+              required
+              placeholder="예: 17"
+              defaultValue={editData?.billing_date}
+              style={inputStyle}
+            />
           </div>
 
           <div>

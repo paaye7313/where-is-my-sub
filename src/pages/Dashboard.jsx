@@ -63,7 +63,8 @@ function Dashboard({ onSubsChange }) {
     sub.name.toLowerCase().includes(search.toLowerCase())
   )
 
-  const totalMonthly = subs.reduce((sum, sub) => sum + sub.price, 0)
+  const totalMonthly = subs.reduce((sum, sub) =>
+    sum + (sub.cycle === '연간' ? Math.round(sub.price / 12) : sub.price), 0)
   const totalYearly = totalMonthly * 12
 
   async function handleAdd(newSub) {
@@ -72,6 +73,7 @@ function Dashboard({ onSubsChange }) {
         name: newSub.name,
         price: newSub.price,
         billingDate: newSub.billingDate,
+        billingMonth: newSub.billingMonth,
         cycle: newSub.cycle,
         icon: newSub.icon,
         color: newSub.color,
@@ -88,6 +90,7 @@ function Dashboard({ onSubsChange }) {
         name: updated.name,
         price: updated.price,
         billingDate: updated.billingDate,
+        billingMonth: updated.billingMonth,
         cycle: updated.cycle,
         icon: updated.icon,
         color: updated.color,
@@ -140,18 +143,20 @@ function Dashboard({ onSubsChange }) {
   }
 
   function handleSort(key) {
+    const getMonthlyPrice = (sub) =>
+      sub.cycle === '연간' ? Math.round(sub.price / 12) : sub.price
+
     const sorted = [...subs].sort((a, b) => {
       if (key === 'name') return a.name.localeCompare(b.name)
-      if (key === 'price') return a.price - b.price
+      if (key === 'price') return getMonthlyPrice(a) - getMonthlyPrice(b)
       if (key === 'billingDate') return a.billing_date - b.billing_date
       return 0
     })
 
-    // 이미 같은 기준으로 오름차순 정렬된 상태면 내림차순으로
     const isSameKey = sortReorderKey === key
     const nextDir = isSameKey && sortReorderDir === 'asc' ? 'desc' : 'asc'
-
     const finalSorted = nextDir === 'desc' ? sorted.reverse() : sorted
+
     setSubs(finalSorted)
     setSortReorderKey(key)
     setSortReorderDir(nextDir)
@@ -255,6 +260,7 @@ function Dashboard({ onSubsChange }) {
                   name={sub.name}
                   price={sub.price}
                   billingDate={sub.billing_date}
+                  billingMonth={sub.billing_month}
                   cycle={sub.cycle}
                   icon={sub.icon}
                   color={sub.color}
