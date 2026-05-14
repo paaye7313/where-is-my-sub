@@ -34,6 +34,7 @@ function Dashboard({ onSubsChange }) {
   const [tempSubs, setTempSubs] = useState([])
   const [sortReorderKey, setSortReorderKey] = useState(null)
   const [sortReorderDir, setSortReorderDir] = useState('asc')
+  const [expandedId, setExpandedId] = useState(null)
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -267,6 +268,8 @@ function Dashboard({ onSubsChange }) {
                   onDelete={handleDelete}
                   onEdit={openEdit}
                   isReordering={isReordering}
+                  expanded={expandedId === sub.id}
+                  onExpand={(id) => setExpandedId(expandedId === id ? null : id)}
                 />
               ))
             ) : (
