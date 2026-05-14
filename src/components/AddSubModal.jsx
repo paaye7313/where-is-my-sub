@@ -164,7 +164,7 @@ function AddSubModal({ onClose, onAdd, onEdit, editData }) {
           {cycle === '연간' && (
             <div>
               <label style={labelStyle}>결제 월</label>
-              <select name="billingMonth" defaultValue={editData?.billing_month || 1} style={inputStyle}>
+              <select name="billingMonth" defaultValue={editData?.billingMonth || editData?.billing_month || 1} style={inputStyle}>
                 {Array.from({ length: 12 }, (_, i) => (
                   <option key={i + 1} value={i + 1}>{i + 1}월</option>
                 ))}
@@ -181,7 +181,7 @@ function AddSubModal({ onClose, onAdd, onEdit, editData }) {
               max="31"
               required
               placeholder="예: 17"
-              defaultValue={editData?.billing_date}
+              defaultValue={editData?.billingDate || editData?.billing_date}
               style={inputStyle}
             />
           </div>
