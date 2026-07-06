@@ -3,6 +3,7 @@ import Header from './components/Header'
 import Dashboard from './pages/Dashboard'
 import AnalyticsPage from './pages/AnalyticsPage'
 import AuthPage from './pages/AuthPage'
+import ServerWakeup from './components/ServerWakeup';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('token'))

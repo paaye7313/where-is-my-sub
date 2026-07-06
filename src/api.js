@@ -39,3 +39,8 @@ export const deleteSubscription = (id) =>
 // 순서 변경
 export const reorderSubscriptions = (orderedIds) =>
   api.put('/subscriptions/reorder', { orderedIds })
+
+// 서버 웨이크업 체크
+export const checkHealth = () => {
+  return axios.get(`${import.meta.env.VITE_API_URL.replace('/api', '')}/health`);
+};

@@ -13,6 +13,10 @@ app.use(express.json())
 app.use('/api/auth', authRoutes)
 app.use('/api/subscriptions', subscriptionRoutes)
 
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok' });
+});
+
 const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
   console.log(`서버 실행 중: http://localhost:${PORT}`)
