@@ -21,7 +21,12 @@ function AuthPage({ onLogin }) {
         setError('회원가입 성공! 로그인해줘요 😊')
       }
     } catch (err) {
-      setError(err.response?.data?.message || '오류가 발생했어요')
+      if (!err.response) {
+        // 서버 연결 실패 (콜드 스타트 등) — ServerWakeup 배너가 대신 안내
+        setError(null)
+      } else {
+        setError(err.response?.data?.message || '오류가 발생했어요')
+      }
     }
   }
 

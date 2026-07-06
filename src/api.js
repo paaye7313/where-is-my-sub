@@ -42,5 +42,6 @@ export const reorderSubscriptions = (orderedIds) =>
 
 // 서버 웨이크업 체크
 export const checkHealth = () => {
+  console.log(import.meta.env.VITE_API_URL)
   return axios.get(`${import.meta.env.VITE_API_URL.replace('/api', '')}/health`);
 };

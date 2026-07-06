@@ -20,11 +20,17 @@ function App() {
   }
 
   if (!isLoggedIn) {
-    return <AuthPage onLogin={handleLogin} />
+    return (
+      <>
+        <ServerWakeup />
+        <AuthPage onLogin={handleLogin} />
+      </>
+    );
   }
 
   return (
     <div style={{ minHeight: '100vh', background: '#f5f5f5' }}>
+      <ServerWakeup />
       <Header
         onLogout={handleLogout}
         page={page}
