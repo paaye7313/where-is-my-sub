@@ -57,7 +57,17 @@
 
 ## 2. 프로젝트 미리보기
 
-> 📸 스크린샷 추가 예정
+### 대시보드
+![대시보드](./screenshots/dashboard.png)
+
+### 지출 분석
+![지출 분석](./screenshots/analytics.png)
+
+### 구독 추가 모달
+![구독 추가 모달](./screenshots/modal.png)
+
+### 로그인
+![로그인](./screenshots/login.png)
 
 **🔗 배포 주소**: https://where-is-my-sub.vercel.app/
 
