@@ -194,7 +194,8 @@ where-is-my-sub/
 │   │   ├── Header.jsx            # 상단 네비게이션, 로그아웃 버튼
 │   │   ├── SubCard.jsx           # 구독 카드 (클릭 시 수정/삭제 버튼 노출)
 │   │   ├── SummaryBox.jsx        # 이번 달 지출 / 연간 환산 / 구독 수 요약 카드
-│   │   └── AddSubModal.jsx       # 구독 추가/수정 모달 (템플릿, 아이콘, 색상 선택)
+│   │   ├── AddSubModal.jsx       # 구독 추가/수정 모달 (템플릿, 아이콘, 색상 선택)
+│   │   └── ServerWakeup.jsx      # Render 콜드 스타트 대응 서버 웨이크업 배너
 │   ├── pages/
 │   │   ├── Dashboard.jsx         # 메인 대시보드 (dnd-kit 드래그 앤 드롭, 순서 수정 모드)
 │   │   ├── AnalyticsPage.jsx     # 지출 분석 (recharts 바 차트, 필터, 비교 테이블)

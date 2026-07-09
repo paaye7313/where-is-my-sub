@@ -37,7 +37,8 @@ C:\paaye\where-is-my-sub/
 │   │   ├── Header.jsx
 │   │   ├── SubCard.jsx
 │   │   ├── SummaryBox.jsx
-│   │   └── AddSubModal.jsx
+│   │   ├── AddSubModal.jsx
+│   │   └── ServerWakeup.jsx
 │   ├── pages/
 │   │   ├── Dashboard.jsx
 │   │   ├── AnalyticsPage.jsx
@@ -118,12 +119,25 @@ CREATE TABLE subscriptions (
 - 로그아웃
 - localStorage에 토큰 저장, axios interceptor로 자동 첨부
 
+### 인프라
+- Render 슬립 모드(15분 비활성) 대응 서버 웨이크업 배너
+  - `GET /health` 엔드포인트로 서버 상태 체크
+  - 2초 이상 응답 없으면 상단 배너 노출
+  - 서버 준비 완료 시 초록색 전환 후 2초 뒤 자동 숨김
+  - 서버 연결 실패 시 로그인 에러 메시지 억제 (배너가 대신 안내)
+  - 로그인/대시보드 양쪽 화면 모두 적용
+
 ---
 
 ## API 엔드포인트
 
 Base URL (로컬): `http://localhost:3001/api`
 Base URL (배포): `https://where-is-my-sub-server.onrender.com/api`
+
+### 헬스체크
+| Method | Endpoint | 설명 | 인증 필요 |
+|---|---|---|---|
+| GET | `/health` | 서버 상태 확인 (웨이크업 체크용) | X |
 
 ### 인증 (`/auth`) — `server/routes/auth.js`
 | Method | Endpoint | 설명 | Body | 인증 필요 |
@@ -189,9 +203,10 @@ NODE_ENV=production
 ```
 
 ### 프론트엔드 (`.env.production`)
-```
 VITE_API_URL=https://where-is-my-sub-server.onrender.com/api
-```
+
+### 프론트엔드 로컬 (`.env.local`)
+VITE_API_URL=http://localhost:3001/api
 
 `src/db.js`는 `DB_URL`이 있으면 그걸 우선 사용하고(Render용), 없으면 개별 환경변수를 사용(로컬용)하도록 분기 처리되어 있음.
 
