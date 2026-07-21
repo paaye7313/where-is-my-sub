@@ -540,7 +540,7 @@ DB 스네이크케이스와 프론트 카멜케이스가 혼용되면서 에러 
 ### 코드 품질
 
 - [ ] API 응답 레벨에서 스네이크케이스 → 카멜케이스 일괄 변환 레이어 추가
-- [ ] 환경변수 `JWT_SECRET` 예시값(`REDACTED_JWT_SECRET`) → 실제 랜덤 시크릿으로 교체
+- [x] 환경변수 `JWT_SECRET` 예시값 → 실제 랜덤 시크릿으로 교체 (2026-07-21)
 
 ---
 
@@ -630,3 +630,16 @@ node index.js
 
 프론트엔드: `http://localhost:5173`
 백엔드: `http://localhost:3001`
+
+### Docker로 실행 (대안)
+
+PostgreSQL을 로컬에 설치하지 않고 한 번에 띄우고 싶다면:
+
+```bash
+git clone https://github.com/paaye7313/where-is-my-sub.git
+cd where-is-my-sub
+cp server/.env.example server/.env   # JWT_SECRET 값을 원하는 값으로 수정
+docker compose up --build
+```
+
+프론트(`5173`), 백엔드(`3001`), PostgreSQL(호스트 `15432` → 컨테이너 `5432`)이 한 번에 뜨고, DB 테이블은 `server/db/init.sql`로 최초 실행 시 자동 생성된다.

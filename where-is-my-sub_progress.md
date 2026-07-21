@@ -1,7 +1,7 @@
 # 내구독어디가 (where-is-my-sub) 프로그래스
 
 > 완료된 작업과 앞으로 진행할 작업을 관리하는 문서. 오버뷰 문서(`where-is-my-sub_overview.md`)와 함께 사용.
-> 마지막 업데이트: 2026-07-06
+> 마지막 업데이트: 2026-07-21
 
 ---
 
@@ -47,6 +47,14 @@
   - 서버 준비 완료 시 초록색 전환 후 2초 뒤 자동 숨김
   - 서버 연결 실패 시 로그인 에러 메시지 대신 배너가 안내
   - 로그인/대시보드 양쪽 화면 모두 적용
+- `server/.env` 및 문서 내 실제 자격증명(`JWT_SECRET`) 노출 제거
+  - git 추적 해제 + `.gitignore` 반영, `git-filter-repo`로 전체 히스토리에서 제거 후 force-push
+  - 로컬 `JWT_SECRET` 랜덤 값으로 교체, `server/.env.example` 추가
+  - 문서(`README.md`, `_overview.md`)에 박혀있던 예시 시크릿 값도 플레이스홀더로 교체
+- Docker Compose로 로컬 개발 환경 구성 (프론트+백엔드+PostgreSQL)
+  - 새 PC에서 PostgreSQL 재설치 없이 바로 개발 시작 가능하도록
+  - `server/db/init.sql`로 최초 기동 시 스키마 자동 생성
+  - `docker compose up --build`로 회원가입~구독 생성까지 전체 플로우 검증 완료
 
 ---
 
@@ -55,7 +63,8 @@
 ### 🔴 최우선
 
 ### 🟡 문서/운영 정비
-- [ ] `.env`의 `JWT_SECRET` 실제 값이면 예시값으로 교체 (보안)
+- [ ] Render `JWT_SECRET`이 로컬 노출값(`REDACTED_JWT_SECRET`)과 같은 값이었는지 확인 후 다르면 교체 (같으면 즉시 교체 — 전체 사용자 재로그인 유발하지만 필수)
+- [ ] postgres가 켜져 있는 환경에서 로컬 DB 비밀번호(`1234`)도 교체
 - [ ] 배포 프로세스 문서화 (Vercel/Render 자동배포 트리거 여부)
 - [ ] Node.js / 주요 패키지 버전 명시
 - [ ] CORS 설정 위치 및 허용 도메인 문서화
@@ -73,3 +82,5 @@
 | 날짜 | 작업 | 비고 |
 |---|---|---|
 | 2026-07-06 | 서버 웨이크업 배너 구현 | 배너 노출 → 준비 완료 표시 → 자동 숨김, 연결 실패 시 에러 메시지 제거 |
+| 2026-07-21 | `server/.env` 노출 제거 (git 히스토리 정리, force-push, 자격증명 로테이션) | public 저장소에 DB 계정/`JWT_SECRET`이 커밋되어 있던 것 발견. `git-filter-repo`로 전체 히스토리에서 제거 + 문서 내 예시 시크릿 값도 정리 |
+| 2026-07-21 | Docker Compose 로컬 개발 환경 구성 | 새 PC로 개발 환경 옮기며 PostgreSQL 재설치 대신 도커화 진행. 프론트/백엔드/DB 3개 컨테이너, `docker compose up --build`로 전체 플로우 검증 |

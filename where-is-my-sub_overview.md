@@ -192,13 +192,13 @@ DB_PASSWORD=로컬_비밀번호
 DB_HOST=localhost
 DB_PORT=5432
 DB_NAME=whereismysub
-JWT_SECRET=REDACTED_JWT_SECRET
+JWT_SECRET=로컬_랜덤_시크릿
 ```
 
 ### Render 환경변수
 ```
 DB_URL=Internal Database URL
-JWT_SECRET=REDACTED_JWT_SECRET
+JWT_SECRET=배포용_랜덤_시크릿(로컬과 다른 값)
 NODE_ENV=production
 ```
 
@@ -216,9 +216,10 @@ VITE_API_URL=http://localhost:3001/api
 - Render 무료 PostgreSQL은 **90일마다 자동 삭제**됨 → 삭제되면 DB 재생성 후 테이블(users, subscriptions) 다시 생성하고, Render 서버 환경변수의 `DB_URL`도 새 값으로 갱신해야 함
 - DB 스키마(컬럼 추가 등) 변경 시 **로컬 DB와 Render DB 둘 다** 동일하게 반영해야 함 (이 때문에 겪었던 버그: icon/color 컬럼을 Render에만 추가하고 로컬에는 빼먹어서 로컬 테스트에서 500 에러 발생)
 - Render 무료 서버는 **15분 비활성 시 슬립 모드** 진입 → 첫 요청이 느리거나 실패할 수 있음
-- 로컬 개발 시 터미널 두 개 필요:
-  - 프론트엔드: `cd C:\paaye\where-is-my-sub` → `npm run dev`
-  - 백엔드: `cd C:\paaye\where-is-my-sub\server` → `node index.js`
+- 로컬 개발은 두 가지 방식 지원:
+  - **네이티브**: 터미널 두 개 필요 — 프론트(`npm run dev`), 백엔드(`cd server` → `node index.js`). PostgreSQL이 로컬에 설치되어 있어야 함
+  - **Docker**: `docker compose up --build` 한 번으로 프론트(5173)/백엔드(3001)/PostgreSQL(15432→컨테이너 내부 5432) 전부 기동. `server/db/init.sql`이 최초 실행 시 테이블 자동 생성. `server/.env`의 `JWT_SECRET`만 있으면 되고 DB 접속 정보는 `docker-compose.yml`에서 고정값(postgres/postgres/whereismysub)으로 오버라이드됨
+  - 여러 PC를 오가며 개발하는 경우 Docker 방식이 PostgreSQL 재설치 없이 바로 시작할 수 있어 더 편함
 - 프론트/백엔드 데이터 필드명 주의: DB는 스네이크 케이스(`billing_date`, `billing_month`), 프론트 컴포넌트 간 전달은 카멜케이스(`billingDate`, `billingMonth`)를 쓰는 경우가 섞여 있어 수정 모달에 값이 안 채워지는 버그가 있었음 → 값을 읽을 때 `editData?.billingDate || editData?.billing_date`처럼 양쪽 다 체크하는 방식으로 해결한 이력 있음
 - Render PostgreSQL 접속 방법 (Windows PowerShell):
   ```powershell
