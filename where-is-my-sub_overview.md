@@ -3,10 +3,10 @@
 ## 프로젝트 정보
 - **서비스명**: 내구독어디가
 - **GitHub**: https://github.com/paaye7313/where-is-my-sub
-- **프론트엔드 배포**: Vercel
-- **백엔드 배포**: Render (`https://where-is-my-sub-server.onrender.com`)
+- **프론트엔드 배포**: Vercel (GitHub `main` 브랜치 push 시 자동 배포)
+- **백엔드 배포**: Render (`https://where-is-my-sub-server.onrender.com`, GitHub `main` 브랜치 push 시 자동 배포)
 - **DB**: Render PostgreSQL (무료 플랜, 90일마다 재생성 필요)
-- **로컬 경로**: `C:\paaye\where-is-my-sub`
+- **로컬 경로**: `C:\paaye\project\where-is-my-sub`
 
 ---
 
